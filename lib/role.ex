@@ -1,17 +1,12 @@
 alias Converge.Util
 
-defmodule RoleNetworkManager do
+defmodule RoleXfs do
 	require Util
 	Util.declare_external_resources("files")
 
 	def role(_tags \\ []) do
 		%{
-			desired_packages: [
-				"network-manager",
-				"network-manager-gnome",
-				"network-manager-openvpn",
-				"network-manager-openvpn-gnome",
-			],
+			desired_packages: ["xfsprogs", "xfsdump"]
 		}
 	end
 end

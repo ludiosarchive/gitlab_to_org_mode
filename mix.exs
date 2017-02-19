@@ -1,9 +1,9 @@
-defmodule RoleNetworkManager.Mixfile do
+defmodule RoleXfs.Mixfile do
 	use Mix.Project
 
 	def project do
 		[
-			app:             :role_network_manager,
+			app:             :role_xfs,
 			version:         "0.1.0",
 			elixir:          ">= 1.4.0",
 			build_embedded:  Mix.env == :prod,
