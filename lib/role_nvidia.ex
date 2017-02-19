@@ -6,9 +6,9 @@ defmodule RoleNvidia do
 
 	def role(_tags \\ []) do
 		%{
-			desired_packages:  ["nvidia-378", "nvidia-settings"],
-			extra_apt_keys:    [Util.content("files/apt_keys/1118213C Launchpad PPA for Graphics Drivers Team.txt")],
-			extra_apt_sources: ["deb http://ppa.launchpad.net/graphics-drivers/ppa/ubuntu xenial main"],
+			desired_packages: ["nvidia-378", "nvidia-settings"],
+			apt_keys:         [Util.content("files/apt_keys/1118213C Launchpad PPA for Graphics Drivers Team.txt")],
+			apt_sources:      ["deb http://ppa.launchpad.net/graphics-drivers/ppa/ubuntu xenial main"],
 		}
 	end
 end
