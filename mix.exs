@@ -1,9 +1,9 @@
-defmodule RoleWebTesting.Mixfile do
+defmodule RoleGrabSite.Mixfile do
 	use Mix.Project
 
 	def project do
 		[
-			app:             :role_web_testing,
+			app:             :role_grab_site,
 			version:         "0.1.0",
 			elixir:          ">= 1.4.0",
 			build_embedded:  Mix.env == :prod,
@@ -14,8 +14,7 @@ defmodule RoleWebTesting.Mixfile do
 
 	defp deps do
 		[
-			{:converge,                ">= 0.1.0"},
-			{:role_google_chrome_repo, ">= 0.1.0"},
+			{:converge, ">= 0.1.0"},
 		]
 	end
 end
