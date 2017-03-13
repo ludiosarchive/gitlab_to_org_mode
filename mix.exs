@@ -14,7 +14,8 @@ defmodule RoleGrabSite.Mixfile do
 
 	defp deps do
 		[
-			{:converge, ">= 0.1.0"},
+			{:converge,             ">= 0.1.0"},
+			{:role_custom_packages, ">= 0.1.0"},
 		]
 	end
 end

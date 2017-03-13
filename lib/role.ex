@@ -8,6 +8,7 @@ defmodule RoleGrabSite do
 				"python3.4-dev",
 				"python3.4-venv",
 			],
+			implied_roles: [RoleCustomPackages],
 		}
 	end
 end
