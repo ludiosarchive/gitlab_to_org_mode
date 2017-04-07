@@ -1,3 +1,4 @@
 /deps
 /_build
 /mix.lock
+/gitlab_to_org_mode
