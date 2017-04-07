@@ -13,9 +13,10 @@ defmodule GitlabToOrgMode.Reader do
 
 		label_links_aggregate =
 			from("label_links")
-			|> select([ll], %{
+			|> join(:left, [ll], l in "labels", ll.label_id == l.id)
+			|> select([ll, l], %{
 					target_id: ll.target_id,
-					label_ids: fragment("array_agg(?)", ll.label_id)
+					labels:    fragment("array_agg(?)", l.title)
 				})
 			|> group_by([ll], ll.target_id)
 
@@ -32,7 +33,7 @@ defmodule GitlabToOrgMode.Reader do
 				project_id:   i.project_id,
 				project_name: p.name,
 				notes:        n.notes,
-				label_ids:    ll.label_ids,
+				labels:       ll.labels,
 			})
 		|> Repo.all
 		|> Enum.map(&fix_row/1)
@@ -41,7 +42,8 @@ defmodule GitlabToOrgMode.Reader do
 	defp fix_row(row) do
 		row = %{row | created_at:  row.created_at  |> erlang_date_to_datetime}
 		row = %{row | description: row.description |> fix_windows_newlines}
-		row = %{row | notes:       (if row.notes, do: row.notes |> fix_notes, else: [])}
+		row = %{row | notes:       (if row.notes,  do: row.notes |> fix_notes, else: [])}
+		row = %{row | labels:      (if row.labels, do: row.labels,             else: [])}
 		row
 	end
 
@@ -100,7 +102,7 @@ defmodule GitlabToOrgMode.Converter do
 	def main(_args) do
 		for row <- Reader.issues() do
 			dest = Writer.dest_filename(row)
-			IO.puts("#{dest} <- #{row.title}")
+			IO.puts("#{dest} <- #{row.title}; labeled #{inspect row.labels}")
 		end
 	end
 end
