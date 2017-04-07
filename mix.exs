@@ -1,9 +1,9 @@
-defmodule RoleGrabSite.Mixfile do
+defmodule GitlabToOrgMode.Mixfile do
 	use Mix.Project
 
 	def project do
 		[
-			app:             :role_grab_site,
+			app:             :gitlab_to_org_mode,
 			version:         "0.1.0",
 			elixir:          ">= 1.4.0",
 			build_embedded:  Mix.env == :prod,
@@ -12,10 +12,17 @@ defmodule RoleGrabSite.Mixfile do
 		]
 	end
 
+	def application do
+		[
+			extra_applications: [:logger],
+			mod: {GitlabToOrgMode.Application, []}
+		]
+	end
+
 	defp deps do
 		[
-			{:converge,             ">= 0.1.0"},
-			{:role_custom_packages, ">= 0.1.0"},
+			{:ecto,      ">= 2.1"},
+			{:postgrex,  ">= 0.13.0"},
 		]
 	end
 end
