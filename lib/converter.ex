@@ -14,7 +14,16 @@ defmodule GitlabToOrgMode.Reader do
 		from("issues")
 		|> join(:left, [i], p in "projects", i.project_id == p.id)
 		|> join(:left, [i], n in subquery(notes_aggregate), i.id == n.noteable_id)
-		|> select([i, p, n], %{issue_id: i.id, project_name: p.name, created_at: i.created_at, title: i.title, description: i.description, notes: n.notes})
+		|> select([i, p, n], %{
+				issue_id:     i.id,
+				created_at:   i.created_at,
+				title:        i.title,
+				description:  i.description,
+				state:        i.state,
+				project_id:   i.project_id,
+				project_name: p.name,
+				notes:        n.notes,
+			})
 		|> Repo.all
 		|> Enum.map(&fix_row/1)
 	end
@@ -51,12 +60,35 @@ defmodule GitlabToOrgMode.Reader do
 end
 
 
+defmodule GitlabToOrgMode.Writer do
+	def dest_filename(row) do
+		basename = case row.project_name do
+			"sysadmin-tasks" -> "tasks"
+			"life-tasks"     -> "tasks"
+			"japanese-tasks" -> "japanese"
+			"media-tasks"    -> "media"
+			# GitLab is great, it keeps issues around for deleted projects
+			nil              -> "orphaned_#{row.project_id}"
+			other            -> other
+		end
+		#IO.puts("state: #{inspect row.state}, basename: #{inspect basename}")
+		case row.state do
+			"opened"   -> basename <> ".org"
+			"reopened" -> basename <> ".org"
+			"closed"   -> basename <> ".org_archive"
+			other      -> raise "Unexpected state for issue: #{inspect other}"
+		end
+	end
+end
+
+
 defmodule GitlabToOrgMode.Converter do
-	alias GitlabToOrgMode.Reader
+	alias GitlabToOrgMode.{Reader, Writer}
 
 	def main(_args) do
-		for issue <- Reader.issues() do
-			IO.inspect(issue)
+		for row <- Reader.issues() do
+			dest = Writer.dest_filename(row)
+			IO.puts("#{dest} <- #{row.title}")
 		end
 	end
 end
