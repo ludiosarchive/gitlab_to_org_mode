@@ -1,12 +1,6 @@
-defmodule GitlabToOrgMode.Converter do
+defmodule GitlabToOrgMode.Reader do
 	alias GitlabToOrgMode.Repo
 	import Ecto.Query
-
-	def main(_args) do
-		for issue <- issues() do
-			IO.inspect(issue)
-		end
-	end
 
 	def issues() do
 		notes_aggregate =
@@ -53,6 +47,17 @@ defmodule GitlabToOrgMode.Converter do
 			second: sec, microsecond: {usec, 6}, zone_abbr: "UTC", time_zone: "Etc/UTC",
 			utc_offset: 0, std_offset: 0
 		}
+	end
+end
+
+
+defmodule GitlabToOrgMode.Converter do
+	alias GitlabToOrgMode.Reader
+
+	def main(_args) do
+		for issue <- Reader.issues() do
+			IO.inspect(issue)
+		end
 	end
 end
 
