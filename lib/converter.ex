@@ -11,7 +11,7 @@ defmodule GitlabToOrgMode.Reader do
 				})
 			|> group_by([n], n.noteable_id)
 
-		label_links_aggregate =
+		labels_aggregate =
 			from("label_links")
 			|> join(:left, [ll], l in "labels", ll.label_id == l.id)
 			|> select([ll, l], %{
@@ -21,10 +21,10 @@ defmodule GitlabToOrgMode.Reader do
 			|> group_by([ll], ll.target_id)
 
 		from("issues")
-		|> join(:left, [i], p  in "projects", i.project_id == p.id)
-		|> join(:left, [i], n  in subquery(notes_aggregate),       i.id == n.noteable_id)
-		|> join(:left, [i], ll in subquery(label_links_aggregate), i.id == ll.target_id)
-		|> select([i, p, n, ll], %{
+		|> join(:left, [i], p in "projects", i.project_id == p.id)
+		|> join(:left, [i], n in subquery(notes_aggregate),  i.id == n.noteable_id)
+		|> join(:left, [i], l in subquery(labels_aggregate), i.id == l.target_id)
+		|> select([i, p, n, l], %{
 				issue_id:     i.id,
 				created_at:   i.created_at,
 				title:        i.title,
@@ -33,7 +33,7 @@ defmodule GitlabToOrgMode.Reader do
 				project_id:   i.project_id,
 				project_name: p.name,
 				notes:        n.notes,
-				labels:       ll.labels,
+				labels:       l.labels,
 			})
 		|> Repo.all
 		|> Enum.map(&fix_row/1)
