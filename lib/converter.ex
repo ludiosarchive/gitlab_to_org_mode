@@ -91,7 +91,6 @@ defmodule GitlabToOrgMode.Writer do
 			nil              -> "orphaned_#{row.project_id}"
 			other            -> other
 		end
-		#IO.puts("state: #{inspect row.state}, basename: #{inspect basename}")
 		case row.state do
 			"opened"   -> basename <> ".org"
 			"reopened" -> basename <> ".org"
@@ -99,20 +98,55 @@ defmodule GitlabToOrgMode.Writer do
 			other      -> raise "Unexpected state for issue: #{inspect other}"
 		end
 	end
-end
 
-
-defmodule GitlabToOrgMode.Converter do
-	alias GitlabToOrgMode.{Reader, Writer}
-
-	def main(_args) do
-		for row <- Reader.issues() do
-			dest = Writer.dest_filename(row)
-			IO.puts("#{dest} <- #{row.title}; labeled #{inspect row.labels}; #{row.notes |> length} notes")
+	def org_item(row) do
+		keyword = case row.state do
+			"closed" -> "DONE"
+			_        -> "TODO"
 		end
+		"""
+		* #{keyword} #{row.title}
+		#{row.description}
+		"""
+		# - State "TODO"       from "TODO"       [2017-04-07 Fri 10:16]
+		# - State "TODO"       from              [2017-04-07 Fri 10:17]
 	end
 end
 
 
-# - State "TODO"       from "TODO"       [2017-04-07 Fri 10:16]
-# - State "TODO"       from              [2017-04-07 Fri 10:17]
+defmodule GitlabToOrgMode.MultiFileWriter do
+	defstruct pid: nil
+
+	def new() do
+		{:ok, pid} = Agent.start_link(fn -> %{} end)
+		%GitlabToOrgMode.MultiFileWriter{pid: pid}
+	end
+
+	def handle(mfw, filename) do
+		Agent.get_and_update(mfw.pid, fn(handles) ->
+			case handles[filename] do
+				nil ->
+					handle = File.open!(filename, [:write])
+					{handle, handles |> Map.put(filename, handle)}
+				handle ->
+					{handle, handles}
+			end
+		end)
+	end
+end
+
+
+defmodule GitlabToOrgMode.Converter do
+	alias GitlabToOrgMode.{Reader, Writer, MultiFileWriter}
+
+	def main(_args) do
+		mfw = MultiFileWriter.new()
+		for row <- Reader.issues() do
+			dest = Writer.dest_filename(row)
+			IO.puts("#{dest} <- #{row.title}; labeled #{inspect row.labels}; #{row.notes |> length} notes")
+
+			handle = MultiFileWriter.handle(mfw, dest)
+			:ok = IO.binwrite(handle, Writer.org_item(row))
+		end
+	end
+end
