@@ -80,7 +80,13 @@ defmodule GitlabToOrgMode.Writer do
 			"sysadmin-tasks" -> "tasks"
 			"life-tasks"     -> "tasks"
 			"japanese-tasks" -> "japanese"
-			"media-tasks"    -> "media"
+			"media-tasks"    -> cond do
+				"film"  in row.labels -> "movies"
+				"game"  in row.labels -> "games"
+				"text"  in row.labels -> "reading"
+				"audio" in row.labels -> "reading"
+				true                  -> "media"
+			end
 			# GitLab is great, it keeps issues around for deleted projects
 			nil              -> "orphaned_#{row.project_id}"
 			other            -> other
@@ -102,7 +108,7 @@ defmodule GitlabToOrgMode.Converter do
 	def main(_args) do
 		for row <- Reader.issues() do
 			dest = Writer.dest_filename(row)
-			IO.puts("#{dest} <- #{row.title}; labeled #{inspect row.labels}")
+			IO.puts("#{dest} <- #{row.title}; labeled #{inspect row.labels}; #{row.notes |> length} notes")
 		end
 	end
 end
