@@ -26,8 +26,19 @@ defmodule GitlabToOrgMode.Converter do
 	end
 
 	defp fix_row(row) do
-		row = %{row | created_at: row.created_at |> erlang_date_to_datetime}
+		row = %{row | created_at:  row.created_at  |> erlang_date_to_datetime}
+		row = %{row | description: row.description |> fix_windows_newlines}
+		row = %{row | notes:       (if row.notes, do: row.notes |> fix_notes, else: [])}
 		row
+	end
+
+	defp fix_notes(notes) do
+		notes
+		|> Enum.map(&fix_note/1)
+	end
+
+	defp fix_note(note) do
+		%{note: note["note"] |> fix_windows_newlines, system: note["system"]}
 	end
 
 	defp fix_windows_newlines(text) do
