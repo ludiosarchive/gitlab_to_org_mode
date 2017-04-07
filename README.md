@@ -9,3 +9,4 @@ Howto:
 1. `mix deps.get`
 1. `mix escript.build`
 1. `./gitlab_to_org_mode`
+1. (Hopefully) enjoy the `.org` files created in the current working directory.
