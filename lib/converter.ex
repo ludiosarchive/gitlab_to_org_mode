@@ -104,15 +104,15 @@ defmodule GitlabToOrgMode.Writer do
 			"closed" -> "DONE"
 			_        -> "TODO"
 		end
+		description = row.description |> String.trim
 		split_notes = row.notes |> Enum.map(&split_note/1)
 		EEx.eval_string(
 		"""
-		* <%= keyword %> <%= row.title %>
-		<%= row.description |> String.trim %>
-		<%= for %{headline: headline, body: body} <- split_notes do %>
+		* <%= keyword %> <%= row.title %><%= if description != "" do %>
+		<%= description %><% end %><%= for %{headline: headline, body: body} <- split_notes do %>
 		** <%= headline %><%= if body do %>
 		<%= body |> String.trim %><% end %><% end %>
-		""", [keyword: keyword, row: row, split_notes: split_notes])
+		""", [keyword: keyword, row: row, description: description, split_notes: split_notes])
 		# - State "TODO"       from "TODO"       [2017-04-07 Fri 10:16]
 		# - State "TODO"       from              [2017-04-07 Fri 10:17]
 	end
@@ -156,7 +156,8 @@ defmodule GitlabToOrgMode.Converter do
 		mfw = MultiFileWriter.new()
 		for row <- Reader.issues() do
 			dest = Writer.dest_filename(row)
-			IO.puts("#{dest} <- #{row.title}; labeled #{inspect row.labels}; #{row.notes |> length} notes")
+			#IO.puts("#{dest} <- #{row.title}; labeled #{inspect row.labels}; #{row.notes |> length} notes")
+			IO.puts("#{inspect row}")
 
 			handle = MultiFileWriter.handle(mfw, dest)
 			:ok = IO.binwrite(handle, Writer.org_item(row))
