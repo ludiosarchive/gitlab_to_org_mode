@@ -11,10 +11,19 @@ defmodule GitlabToOrgMode.Reader do
 				})
 			|> group_by([n], n.noteable_id)
 
+		label_links_aggregate =
+			from("label_links")
+			|> select([ll], %{
+					target_id: ll.target_id,
+					label_ids: fragment("array_agg(?)", ll.label_id)
+				})
+			|> group_by([ll], ll.target_id)
+
 		from("issues")
-		|> join(:left, [i], p in "projects", i.project_id == p.id)
-		|> join(:left, [i], n in subquery(notes_aggregate), i.id == n.noteable_id)
-		|> select([i, p, n], %{
+		|> join(:left, [i], p  in "projects", i.project_id == p.id)
+		|> join(:left, [i], n  in subquery(notes_aggregate),       i.id == n.noteable_id)
+		|> join(:left, [i], ll in subquery(label_links_aggregate), i.id == ll.target_id)
+		|> select([i, p, n, ll], %{
 				issue_id:     i.id,
 				created_at:   i.created_at,
 				title:        i.title,
@@ -23,6 +32,7 @@ defmodule GitlabToOrgMode.Reader do
 				project_id:   i.project_id,
 				project_name: p.name,
 				notes:        n.notes,
+				label_ids:    ll.label_ids,
 			})
 		|> Repo.all
 		|> Enum.map(&fix_row/1)
@@ -63,6 +73,8 @@ end
 defmodule GitlabToOrgMode.Writer do
 	def dest_filename(row) do
 		basename = case row.project_name do
+			# Modify this to map your GitLab projects to org files:
+			# GitLab project -> org file
 			"sysadmin-tasks" -> "tasks"
 			"life-tasks"     -> "tasks"
 			"japanese-tasks" -> "japanese"
