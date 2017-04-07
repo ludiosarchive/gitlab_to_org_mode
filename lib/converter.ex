@@ -104,10 +104,10 @@ defmodule GitlabToOrgMode.Writer do
 			"closed" -> "DONE"
 			_        -> "TODO"
 		end
-		"""
-		* #{keyword} #{row.title}
-		#{row.description}
-		"""
+		EEx.eval_string("""
+		* <%= keyword %> <%= row.title %>
+		<%= row.description %>
+		""", [keyword: keyword, row: row])
 		# - State "TODO"       from "TODO"       [2017-04-07 Fri 10:16]
 		# - State "TODO"       from              [2017-04-07 Fri 10:17]
 	end
