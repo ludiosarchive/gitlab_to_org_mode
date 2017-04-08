@@ -187,8 +187,8 @@ defmodule GitlabToOrgMode.Converter do
 		fh = FileHandler.new()
 		for row <- Reader.issues() do
 			dest = Writer.dest_filename(row)
-			#IO.puts("#{dest} <- #{row.title}; labeled #{inspect row.labels}; #{row.notes |> length} notes")
-			IO.puts("#{inspect row}")
+			IO.puts("#{dest} <- #{row.title}; labeled #{inspect row.labels}; #{row.notes |> length} notes")
+			#IO.puts("#{inspect row}")
 
 			handle = FileHandler.handle(fh, dest)
 			:ok = IO.binwrite(handle, Writer.org_item(row))
