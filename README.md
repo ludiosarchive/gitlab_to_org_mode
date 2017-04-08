@@ -5,7 +5,7 @@ but it should be easy enough to modify.
 
 The output is one file per GitLab project with:
 
-```org
+```org-mode
 * TODO Issue title of an open issue
 - State "TODO"       from              [2016-08-31 Wed 21:03]
 Issue description
