@@ -8,6 +8,7 @@ but it should be easy enough to modify.
 - Authorship/user information is ignored
 - Timestamps on comments are ignored
 - Deleted issues will reappear as not-deleted items
+- Asterisks in issue descriptions may create sibling items
 - First line of a comment on an issue is assumed to be a good child headline
 - Issue labels are not included as tags in the output, but you can modify `lib/converter.ex` to send them to different files (or fix it to output tags).
 - `.org_archive` files are missing the `#    -*- mode: org -*-` header, so add this to your `~/.emacs.d/init.el`:
