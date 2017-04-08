@@ -7,7 +7,7 @@ defmodule GitlabToOrgMode.Reader do
 			from("notes")
 			|> select([n], %{
 					noteable_id: n.noteable_id,
-					notes:       fragment("array_agg(json_build_object('note', ?::varchar, 'system', ?))", n.note, n.system)
+					notes:       fragment("array_agg(json_build_object('note', ?, 'created_at', ?, 'system', ?))", n.note, n.created_at, n.system)
 				})
 			|> group_by([n], n.noteable_id)
 
@@ -53,7 +53,11 @@ defmodule GitlabToOrgMode.Reader do
 	end
 
 	defp fix_note(note) do
-		%{note: note["note"] |> fix_windows_newlines, system: note["system"]}
+		%{
+			note:       note["note"] |> fix_windows_newlines,
+			system:     note["system"],
+			created_at: note["created_at"],
+		}
 	end
 
 	defp fix_windows_newlines(text) do
@@ -117,12 +121,12 @@ defmodule GitlabToOrgMode.Writer do
 		# - State "TODO"       from              [2017-04-07 Fri 10:17]
 	end
 
-	defp split_note(%{note: text, system: system}) do
+	defp split_note(%{note: text, system: system, created_at: created_at}) do
 		{headline, body} = case text |> String.split("\n", parts: 2) do
 			[headline, body] -> {headline, body}
 			[headline]       -> {headline, nil}
 		end
-		%{headline: headline, body: body, system: system}
+		%{headline: headline, body: body, system: system, created_at: created_at}
 	end
 end
 
