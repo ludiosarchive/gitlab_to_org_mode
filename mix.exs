@@ -15,7 +15,7 @@ defmodule GitlabToOrgMode.Mixfile do
 
 	def application do
 		[
-			extra_applications: [:logger, :eex],
+			extra_applications: [:logger],
 			mod: {GitlabToOrgMode.Application, []}
 		]
 	end

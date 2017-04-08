@@ -110,13 +110,16 @@ defmodule GitlabToOrgMode.Writer do
 		end
 		description = row.description |> String.trim
 		split_notes = row.notes |> Enum.map(&split_note/1)
-		EEx.eval_string(
-		"""
-		* <%= keyword %> <%= row.title %><%= if description != "" do %>
-		<%= description %><% end %><%= for %{headline: headline, body: body} <- split_notes do %>
-		** <%= headline %><%= if body do %>
-		<%= body |> String.trim %><% end %><% end %>
-		""", [keyword: keyword, row: row, description: description, split_notes: split_notes])
+		[
+			"* ", keyword, " ", row.title, "\n",
+			(if description != "", do: [description, "\n"], else: ""),
+			for %{headline: headline, body: body} <- split_notes do
+				[
+					"** ", headline, "\n",
+					(if body, do: [body |> String.trim, "\n"], else: "")
+				]
+			end
+		]
 		# - State "TODO"       from "TODO"       [2017-04-07 Fri 10:16]
 		# - State "TODO"       from              [2017-04-07 Fri 10:17]
 	end
