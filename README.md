@@ -1,3 +1,8 @@
+**gitlab_to_org_mode** performs a one-time migration of all issues in a GitLab
+PostgreSQL database to .org and .org_archive [org-mode](http://orgmode.org/) files.
+It will probably not do exactly what you need, but it should be easy enough to
+modify.
+
 Howto:
 
 1. Install Erlang
@@ -9,4 +14,4 @@ Howto:
 1. `mix deps.get`
 1. `mix escript.build`
 1. `./gitlab_to_org_mode`
-1. (Hopefully) enjoy the `.org` files created in the current working directory.
+1. Carefully inspect the `.org` and `.org_archive` files created in the current working directory.
