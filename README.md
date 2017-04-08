@@ -3,7 +3,14 @@ PostgreSQL database to `.org` and `.org_archive` files that can be edited with
 [org-mode](http://orgmode.org/).  It will probably not do exactly what you need,
 but it should be easy enough to modify.
 
-Howto:
+## Caveats
+
+- Authorship/user information is ignored
+- Timestamps on comments are ignored
+- Deleted issues will reappear as not-deleted items
+- First line of a comment on an issue is assumed to be a good child headline
+
+## Howto
 
 1. Install Erlang
 1. Install Elixir and make sure `mix` is in your `PATH`.
