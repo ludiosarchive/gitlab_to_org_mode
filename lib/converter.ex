@@ -54,6 +54,8 @@ defmodule GitlabToOrgMode.Reader do
 	defp fix_notes(notes) do
 		notes
 		|> Enum.map(&fix_note/1)
+		# created_at is a string because it comes from an array of JSON objects
+		|> Enum.sort_by(fn note -> note.created_at end)
 	end
 
 	defp fix_note(note) do
