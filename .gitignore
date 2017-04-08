@@ -2,3 +2,5 @@
 /_build
 /mix.lock
 /gitlab_to_org_mode
+*.org
+*.org_archive
