@@ -1,7 +1,7 @@
 **gitlab_to_org_mode** performs a one-time migration of all issues in a GitLab
-PostgreSQL database to .org and .org_archive [org-mode](http://orgmode.org/) files.
-It will probably not do exactly what you need, but it should be easy enough to
-modify.
+PostgreSQL database to `.org` and `.org_archive` files that can be edited with
+[org-mode](http://orgmode.org/).  It will probably not do exactly what you need,
+but it should be easy enough to modify.
 
 Howto:
 
