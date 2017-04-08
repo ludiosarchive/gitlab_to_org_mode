@@ -9,6 +9,10 @@ but it should be easy enough to modify.
 - Timestamps on comments are ignored
 - Deleted issues will reappear as not-deleted items
 - First line of a comment on an issue is assumed to be a good child headline
+- `.org_archive` files are missing the `#    -*- mode: org -*-` string, so add this to your `~/.emacs.d/init.el`:
+  ```
+  (add-to-list 'auto-mode-alist '("\\.org_archive$" . org-mode))
+  ```
 
 ## Howto
 
