@@ -27,6 +27,7 @@ defmodule GitlabToOrgMode.Reader do
 		|> select([i, p, n, l], %{
 				issue_id:     i.id,
 				created_at:   i.created_at,
+				updated_at:   i.updated_at,
 				title:        i.title,
 				description:  i.description,
 				state:        i.state,
@@ -41,6 +42,7 @@ defmodule GitlabToOrgMode.Reader do
 
 	defp fix_row(row) do
 		row = %{row | created_at:  row.created_at  |> erlang_date_to_datetime}
+		row = %{row | updated_at:  row.updated_at  |> erlang_date_to_datetime}
 		row = %{row | description: row.description |> fix_windows_newlines}
 		row = %{row | notes:       (if row.notes,  do: row.notes |> fix_notes, else: [])}
 		row = %{row | labels:      (if row.labels, do: row.labels,             else: [])}
@@ -109,9 +111,19 @@ defmodule GitlabToOrgMode.Writer do
 			_        -> "TODO"
 		end
 		description = row.description |> String.trim
-		split_notes = row.notes |> Enum.map(&split_note/1)
+		split_notes =
+			row.notes
+			|> Enum.filter(&include_note?/1)
+			|> Enum.map(&split_note/1)
 		[
 			"* ", keyword, " ", row.title, "\n",
+			if row.state == "closed" do
+				# Assume that the updated_at time for a closed issue is when the
+				# issue was closed.  Not always true, but good enough.
+				[~s(- State "DONE"       from "TODO"       [), datetime_to_org_date(row.updated_at), "]", "\n"]
+			else
+				""
+			end,
 			~s(- State "TODO"       from              [), datetime_to_org_date(row.created_at), "]", "\n",
 			(if description != "", do: [description, "\n"], else: ""),
 			for %{headline: headline, body: body} <- split_notes do
@@ -121,8 +133,10 @@ defmodule GitlabToOrgMode.Writer do
 				]
 			end
 		]
-		# - State "TODO"       from "TODO"       [2017-04-07 Fri 10:16]
-		# - State "TODO"       from              [2017-04-07 Fri 10:17]
+	end
+
+	defp include_note?(note) do
+		not note.system
 	end
 
 	defp split_note(%{note: text, system: system, created_at: created_at}) do
