@@ -112,6 +112,7 @@ defmodule GitlabToOrgMode.Writer do
 		split_notes = row.notes |> Enum.map(&split_note/1)
 		[
 			"* ", keyword, " ", row.title, "\n",
+			~s(- State "TODO"       from              [), datetime_to_org_date(row.created_at), "]", "\n",
 			(if description != "", do: [description, "\n"], else: ""),
 			for %{headline: headline, body: body} <- split_notes do
 				[
@@ -130,6 +131,29 @@ defmodule GitlabToOrgMode.Writer do
 			[headline]       -> {headline, nil}
 		end
 		%{headline: headline, body: body, system: system, created_at: created_at}
+	end
+
+	defp datetime_to_org_date(datetime) do
+		:io_lib.format(
+			"~4..0B-~2..0B-~2..0B ~s ~2..0B:~2..0B",
+			[
+				datetime.year, datetime.month, datetime.day, get_weekday(datetime),
+				datetime.hour, datetime.minute
+			]
+		)
+	end
+
+	defp get_weekday(datetime) do
+		date = datetime |> DateTime.to_date
+		case date |> Date.day_of_week do
+			1 -> "Mon"
+			2 -> "Tue"
+			3 -> "Wed"
+			4 -> "Thu"
+			5 -> "Fri"
+			6 -> "Sat"
+			7 -> "Sun"
+		end
 	end
 end
 
