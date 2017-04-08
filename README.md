@@ -3,6 +3,24 @@ PostgreSQL database to `.org` and `.org_archive` files that can be edited with
 [org-mode](http://orgmode.org/).  It will probably not do exactly what you need,
 but it should be easy enough to modify.
 
+The output is one file per GitLab project with:
+
+```org
+* TODO Issue title of an open issue
+- State "TODO"       from              [2016-08-31 Wed 21:03]
+Issue description
+** First line of comment #1
+The rest of comment #1
+** First line of comment #2
+The rest of comment #2
+* DONE Issue title of a closed issue
+- State "DONE"       from "TODO"       [2017-04-01 Wed 19:41]
+- State "TODO"       from              [2016-08-31 Wed 21:03]
+Issue description
+```
+
+All `DONE` issues go into an `.org_archive` file instead of an `.org` file.
+
 ## Caveats
 
 - Authorship/user information is ignored
