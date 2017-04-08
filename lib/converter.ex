@@ -134,16 +134,16 @@ defmodule GitlabToOrgMode.Writer do
 end
 
 
-defmodule GitlabToOrgMode.MultiFileWriter do
+defmodule GitlabToOrgMode.FileHandler do
 	defstruct pid: nil
 
 	def new() do
 		{:ok, pid} = Agent.start_link(fn -> %{} end)
-		%GitlabToOrgMode.MultiFileWriter{pid: pid}
+		%GitlabToOrgMode.FileHandler{pid: pid}
 	end
 
-	def handle(mfw, filename) do
-		Agent.get_and_update(mfw.pid, fn(handles) ->
+	def handle(fh, filename) do
+		Agent.get_and_update(fh.pid, fn(handles) ->
 			case handles[filename] do
 				nil ->
 					handle = File.open!(filename, [:write])
@@ -157,16 +157,16 @@ end
 
 
 defmodule GitlabToOrgMode.Converter do
-	alias GitlabToOrgMode.{Reader, Writer, MultiFileWriter}
+	alias GitlabToOrgMode.{Reader, Writer, FileHandler}
 
 	def main(_args) do
-		mfw = MultiFileWriter.new()
+		fh = FileHandler.new()
 		for row <- Reader.issues() do
 			dest = Writer.dest_filename(row)
 			#IO.puts("#{dest} <- #{row.title}; labeled #{inspect row.labels}; #{row.notes |> length} notes")
 			IO.puts("#{inspect row}")
 
-			handle = MultiFileWriter.handle(mfw, dest)
+			handle = FileHandler.handle(fh, dest)
 			:ok = IO.binwrite(handle, Writer.org_item(row))
 		end
 	end
