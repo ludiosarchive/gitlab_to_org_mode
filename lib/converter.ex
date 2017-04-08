@@ -36,6 +36,8 @@ defmodule GitlabToOrgMode.Reader do
 				notes:        n.notes,
 				labels:       l.labels,
 			})
+		# Sort newest -> oldest so that the .org output matches how GitLab shows things
+		|> order_by([i], desc: i.created_at)
 		|> Repo.all
 		|> Enum.map(&fix_row/1)
 	end
